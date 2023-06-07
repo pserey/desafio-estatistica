@@ -7,12 +7,12 @@ csvData = read.csv("premier2020_21.csv", dec=".")
 csvData = mutate(csvData, totalGoals=FTHG + FTAG)
 
 # print de informações sobre os dados
-summary(csvData)
+# summary(csvData)
 # "importação" dos dados no código, é possível usar as colunas diretamente
 attach(csvData)
 
 # gameData são os primeiros 70 jogos da coleção de 380 jogos
-gameData = csvData[1:70,]
+gameData = csvData[1:70, ]
 
 # alias para gameData$totalGoals
 TGa = gameData$totalGoals
@@ -43,11 +43,13 @@ for (i in 1:k){
   # refaz a regressão linear com -1 para remover o (intercept) (assume
   # que a variável passa por (0,0) na ausencia de variáveis independentes)
   # TODO: dúvida: porque remover o (intercept) agora e porque adjustment foi criado antes e não só agora?
-  adjustment = lm(TGa~FTHGb + FTAGb - 1,data=gameData) 
+  adjustment = lm(TGa~FTHGb + FTAGb - 1, data=gameData) 
 
   # calcula média de gols para jogos futuros (10 jogos depois da iteração atual) considerando coeficientes da regressão linear
   # sempre se calcula a média de gols para o intervalo de [jogosPassados:jogosPassados + 10], ou seja, apenas dos 10 previstos
-  goalsAvg = (adjustment$coefficients[1] * csvData$FTHGb[(60 + 10 * i + 1):(70 + 10 * i)] + csvData$FTAGb[(60 + 10 * i + 1):(70 + 10 * i)] * adjustment$coefficients[2])
+  goalsAvg = (adjustment$coefficients[1] * csvData$FTHGb[(60 + 10 * i + 1):(70 + 10 * i)] + 
+              adjustment$coefficients[2] * csvData$FTAGb[(60 + 10 * i + 1):(70 + 10 * i)])
+
   profit = c(0)
   correctlyForeseen = 0
   biggerThan2.5 = 0
@@ -97,5 +99,5 @@ mean(roundHitProportion, na.rm=T)
 median(roundHitProportion, na.rm=T)
 
 # lucro acumulado na temporada
-accProfit = cumsum(roundProfit)
-plot(accProfit, col="blue", type="h")
+# accProfit = cumsum(roundProfit)
+# plot(accProfit, col="blue", type="h")

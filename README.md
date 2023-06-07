@@ -1,0 +1,3 @@
+- adicionar variáveis médias para gols feitos e recebidos fora e em casa
+- analisar significancia das variáveis (incluindo odd)
+- 

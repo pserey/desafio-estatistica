@@ -2,9 +2,10 @@ import numpy as np
 import pandas as pd
 
 from sklearn.linear_model import LinearRegression
+from utils import summary, lm
 
 csv_data = pd.read_csv('premier2020_21.csv')
-csv_data['TGa'] = csv_data['FTHG'] + csv_data['FTAG']
+csv_data['TGa'] = csv_data['FTHGb'] + csv_data['FTAGb']
 
 stake = 100
 round_hit_prop = []
@@ -12,13 +13,26 @@ round_profit = []
 games = 0
 
 # var_total_goals = csv_data[:70]['TGa'].to_numpy().reshape((-1, 1))
-# var_fthg = csv_data[:70]['FTHG'].to_numpy()
-# var_ftag = csv_data[:70]['FTAG'].to_numpy()
+# var_FTHGb = csv_data[:70]['FTHGb'].to_numpy()
+# var_FTAGb = csv_data[:70]['FTAGb'].to_numpy()
 
-# var_indepentes = np.column_stack((var_ftag, var_fthg))
+# var_indepentes = np.column_stack((var_FTAGb, var_FTHGb))
 
-model = LinearRegression()
-# model = LinearRegression(fit_intercept=False)
+model = LinearRegression(fit_intercept=True)
+
+game_data = csv_data[:70]
+total_goals = csv_data[:70]['TGa']
+
+var_total_goals = total_goals.to_numpy()
+var_FTHGb = game_data['FTHGb'].to_numpy()
+var_FTAGb = game_data['FTAGb'].to_numpy()
+
+# modelo treinado com dados no limite da rodada atual
+model, X, y = lm(var_total_goals, [var_FTHGb, var_FTAGb])
+
+# Print the summary
+for e in summary(model, X, y).items():
+    print(e[0], e[1])
 
 for i in range(31):
     limit_input = 60 + 10 * i
@@ -26,19 +40,19 @@ for i in range(31):
     total_goals = csv_data[:limit_input]['TGa']
 
     var_total_goals = game_data['TGa'].to_numpy()
-    var_fthg = game_data['FTHG'].to_numpy()
-    var_ftag = game_data['FTAG'].to_numpy()
+    var_FTHGb = game_data['FTHGb'].to_numpy()
+    var_FTAGb = game_data['FTAGb'].to_numpy()
 
     # array 2D de variáveis independentes
-    var_independentes = np.column_stack((var_fthg, var_ftag))
+    var_independentes = np.column_stack((var_FTHGb, var_FTAGb))
 
     # modelo treinado com dados no limite da rodada atual
     model = model.fit(var_independentes, var_total_goals)
 
     # dados a serem previstos, pegos do csv original
-    new_fthg = csv_data[limit_input + 1:limit_input + 11]['FTHG'].to_numpy()
-    new_ftag = csv_data[limit_input + 1:limit_input + 11]['FTAG'].to_numpy()
-    prev_goals_data = np.column_stack((new_fthg, new_ftag))
+    new_FTHGb = csv_data[limit_input + 1:limit_input + 11]['FTHGb'].to_numpy()
+    new_FTAGb = csv_data[limit_input + 1:limit_input + 11]['FTAGb'].to_numpy()
+    prev_goals_data = np.column_stack((new_FTHGb, new_FTAGb))
 
     goals_prev = model.predict(prev_goals_data)
 
