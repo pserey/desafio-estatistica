@@ -1,8 +1,16 @@
 library(tidyverse)
 library(dplyr)
 
-csv_data <- read.csv("premier2020_21.csv", dec = ".")
-# csv_data <- read.csv("E0.csv", dec = ".")
+# csv_data <- read.csv("premier2020_21.csv", dec = ".")
+
+# ------------- pegando dado não pre-processado -----------------------
+csv_data <- read.csv("E0.csv", dec = ".")
+csv_data <- mutate(csv_data, jogo = row_number())
+# b365_index <- which(names(csv_data) == "B365.2.5")
+b365_index <- which(names(csv_data) == "B365O2DOT5")
+names(csv_data)[b365_index] <- "OddO2.5"
+
+# ---------------------------------------------------------------------
 
 # adição de uma coluna de gols totais que soma FTHG + FTAG nos dados
 csv_data <- mutate(csv_data, total_goals = FTHG + FTAG)
