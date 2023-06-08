@@ -33,12 +33,21 @@ pre_process <- function(file_name) {
 
 }
 
-train_simulate_model <- function(csv_data, training_size, stake) {
+train_simulate_model <- function(csv_data, training_size, stake, variables, bet_decision) {
 
   attach(csv_data)
 
+  if (bet_decision == 0) {
+    bet_thresh <- 2.5
+  } else if (bet_decision == 1) {
+    bet_thresh <- 2.7
+  } else if (bet_decision == 2) {
+    bet_thresh <- 2.9
+  } else {
+    bet_thresh <- 2.5
+  }
+
   # game_data são os primeiros 70 jogos da coleção de 380 jogos
-  training_size <- 30
   game_data <- csv_data[1:training_size, ]
 
   # definição de regressão linear com totalGolas como v.d. e FTHGb e FTAGb como v.i.
@@ -54,6 +63,7 @@ train_simulate_model <- function(csv_data, training_size, stake) {
   profit <- c(0)
   round_profit <- c(0)
   round_hit_prop <- c(0)
+  betted_round <- c(0)
 
   # ---------------------- model simulation ---------------------------
 
@@ -66,29 +76,26 @@ train_simulate_model <- function(csv_data, training_size, stake) {
     game_data <- csv_data[1:limit_input, ]
 
     # refaz a regressão linear com -1 para remover o intercept
-    adjustment <- lm(total_goals ~ MFTAGt + MFTHGt + MFTAGm + MFTHGm + OddO2.5 - 1, data = game_data)
+    formula <- as.formula(paste("total_goals ~", paste(variables, collapse = " + "), "- 1"))
+    adjustment <- lm(formula, data = game_data)
 
     # acessa dados dos 10 jogos após limit_input para previsão
-    new_data <- data.frame(MFTAGt = csv_data$MFTAGt[(limit_input + 1):(limit_input + offset_training)],
-                          MFTHGt = csv_data$MFTHGt[(limit_input + 1):(limit_input + offset_training)],
-                          MFTAGm = csv_data$MFTAGm[(limit_input + 1):(limit_input + offset_training)],
-                          MFTHGm = csv_data$MFTHGm[(limit_input + 1):(limit_input + offset_training)],
-                          OddO2.5 = csv_data$OddO2.5[(limit_input + 1):(limit_input + offset_training)])
+    new_data <- csv_data[(limit_input + 1):(limit_input + offset_training), variables]
 
     # faz a previsão para os 10 jogos com os dados acessados
     goals_avg <- predict(adjustment, newdata = new_data)
 
     profit <- c(0)
     correct <- 0
-    real_over_two <- 0
+    betted <- 0
 
     # iteração pelos 10 jogos previstos para a checagem de exatidão do modelo
     for (j in 1:offset_training) {
 
       # se foi previsto que fosse maior que 2.5 a média de gols (baseado em goals_avg)
-      if (goals_avg[j] > 2.5) {
+      if (goals_avg[j] > bet_thresh) {
 
-        real_over_two <- real_over_two + 1
+        betted <- betted + 1
 
         # se realmente é maior que 2.5 a média de gols (baseado em csv_data$totalGoals[jogoSendoPrevisto])
         if (csv_data$total_goals[(limit_input + j)] > 2.5) {
@@ -108,33 +115,19 @@ train_simulate_model <- function(csv_data, training_size, stake) {
     }
 
     # em uma rodada de 10 jogos previstos, a taxa de acerto
-    round_hit_prop[i] <- correct / real_over_two
+    round_hit_prop[i] <- correct / betted
+    betted_round[i] <- betted
     # em uma rodada de 10 jogos previstos, o lucro (caso tenha apostado o stake)
     round_profit[i] <- sum(profit)
 
   }
 
-  # round_profit # chamar a variável assim é basicamente um print no RStudio
-  # round_hit_prop
-
-  cat("Training games:", training_size, "\n")
-
-  # a soma dos lucros de cada rodada
   season_profit <- sum(round_profit)
-  cat("Profit:", season_profit, "\n")
 
   # média de acertos a cada rodada
   accuracy <- mean(round_hit_prop, na.rm = TRUE)
 
-  return(season_profit, accuracy)
+  detach(csv_data)
 
-  # mediana de acertos a cada rodada
-  # median(round_hit_prop, na.rm = TRUE)
-
-  # games_counter
-
-  # lucro acumulado na temporada
-  # acc_profit <- cumsum(round_profit)
-
-  # plot(acc_profit, col = "blue", type = "h")
+  return(c(season_profit, accuracy, betted_round))
 }
