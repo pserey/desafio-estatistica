@@ -70,8 +70,9 @@ for (arq in 1:arquivos_idx) {
 
 # decision loop: the best row is the row with larger average profit for the combination of Threshold, Variables and Dataset Size
 grouped_tuples <- decision_df %>% group_by(Threshold, Variables, TrainingDataSize)
-average_profit <- summarise(grouped_tuples, avgProfit = mean(Profit))
+average_profit <- summarise(grouped_tuples, avgProfit = mean(Profit), avgHitRate = mean(Accuracy))
 
 write.csv(average_profit, "data/simulation.csv", row.names = FALSE)
 
 best_combination <- average_profit[which.max(average_profit$avgProfit), ]
+best_combination
