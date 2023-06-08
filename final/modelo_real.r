@@ -25,7 +25,7 @@ predict_games <- function(games_file) {
 
   total_games <- nrow(csv_data)
   offset_training <- 10
-  iteration_rest <- (total_games - training_size) / offset_training
+  iteration_rest <- ceiling((total_games - training_size) / offset_training)
 
   # vector with "safe" games to bet
   safe_games <- c()
@@ -50,7 +50,9 @@ predict_games <- function(games_file) {
     for (j in 1:offset_training) {
 
       # if predicted, add to list
-      if (goals_avg[j] > bet_thresh) {
+      if (is.na(goals_avg[j])) {
+        # protection agains NaN in list
+      } else if (goals_avg[j] > bet_thresh) {
         safe_games <- c(safe_games, paste("Game", csv_data$jogo[(limit_input + j)], " | ", csv_data$HomeTeam[(limit_input + j)], "vs.", csv_data$AwayTeam[(limit_input + j)]))
       }
     }
