@@ -1,6 +1,8 @@
 library(tidyverse)
 library(dplyr)
 
+setwd("data/")
+
 # csv_data <- read.csv("premier2020_21.csv", dec = ".")
 
 # ------------- pegando dado não pre-processado -----------------------
