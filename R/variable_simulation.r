@@ -1,8 +1,9 @@
+library(dplyr)
 source("R/model_functions.r")
 
-csv_data <- pre_process("E0.csv")
+csv_data <- pre_process("data/E0_2021.csv")
 
-get_plot_data <- function(csv_data, training_size) {
+get_plot_data <- function(csv_data, training_size, bet_decision) {
     variables <- c("MFTAGt", "MFTHGt", "MFTAGm", "MFTHGm", "OddO2.5")
     selected_vars_col <- c()
     nvars_col <- c()
@@ -20,7 +21,7 @@ get_plot_data <- function(csv_data, training_size) {
             selected_vars_col <- c(selected_vars_col, sv_str)
             nvars_col <- c(nvars_col, length(selected_vars))
 
-            simulation <- train_simulate_model(csv_data = csv_data, training_size = training_size, stake = 100, variables = selected_vars, bet_decision = 0)
+            simulation <- train_simulate_model(csv_data = csv_data, training_size = training_size, stake = 100, variables = selected_vars, bet_decision = bet_decision)
 
             # add profit and accuracy to csv columns
             profit_col <- c(profit_col, simulation[1])
@@ -33,16 +34,44 @@ get_plot_data <- function(csv_data, training_size) {
     return(data)
 }
 
-data_min <- get_plot_data(csv_data = csv_data, training_size = 40)
-data_low <- get_plot_data(csv_data = csv_data, training_size = 140)
-data_med <- get_plot_data(csv_data = csv_data, training_size = 240)
-data_max <- get_plot_data(csv_data = csv_data, training_size = 340)
+arquivos_idx <- 3
+arquivos <- c("data/E0_2021.csv", "data/E0_2223.csv", "data/E0_2122.csv")
 
-data_min$TrainingDataSize <- "Min"
-data_low$TrainingDataSize <- "Low"
-data_med$TrainingDataSize <- "Med"
-data_max$TrainingDataSize <- "Max"
+thresholds_idx <- 3
+thresholds <- c(2.5, 2.7, 2.9)
 
-combined_data <- rbind(data_min, data_low, data_med, data_max)
+decision_df <- data.frame()
 
-write.csv(combined_data, "simulation.csv", row.names = FALSE)
+for (arq in 1:arquivos_idx) {
+
+    csv_data <- pre_process(arquivos[arq])
+
+    for (i in 1:thresholds_idx) {
+
+        all_cases_threshold <- data.frame()
+
+        data_min <- get_plot_data(csv_data = csv_data, training_size = 40, bet_decision = i)
+        data_low <- get_plot_data(csv_data = csv_data, training_size = 140, bet_decision = i)
+        data_med <- get_plot_data(csv_data = csv_data, training_size = 240, bet_decision = i)
+        data_max <- get_plot_data(csv_data = csv_data, training_size = 340, bet_decision = i)
+
+        data_min$TrainingDataSize <- "Min"
+        data_low$TrainingDataSize <- "Low"
+        data_med$TrainingDataSize <- "Med"
+        data_max$TrainingDataSize <- "Max"
+
+        all_cases_threshold <- rbind(data_min, data_low, data_med, data_max)
+
+        all_cases_threshold <- mutate(all_cases_threshold, Threshold = thresholds[i])
+        decision_df <- rbind(decision_df, all_cases_threshold)
+
+    }
+}
+
+# decision loop: the best row is the row with larger average profit for the combination of Threshold, Variables and Dataset Size
+grouped_tuples <- decision_df %>% group_by(Threshold, Variables, TrainingDataSize)
+average_profit <- summarise(grouped_tuples, avgProfit = mean(Profit))
+
+write.csv(average_profit, "data/simulation.csv", row.names = FALSE)
+
+best_combination <- average_profit[which.max(average_profit$avgProfit), ]

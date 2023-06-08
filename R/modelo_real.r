@@ -1,49 +1,22 @@
-library(tidyverse)
-library(dplyr)
-
-pre_process <- function(file_name) {
-
-  # csv_data <- read.csv("premier2020_21.csv", dec = ".")
-
-  # ------------- pegando dado não pre-processado -----------------------
-  csv_data <- read.csv(file_name, dec = ".")
-  csv_data <- mutate(csv_data, jogo = row_number())
-  b365_index <- which(names(csv_data) == "B365.2.5")
-  names(csv_data)[b365_index] <- "OddO2.5"
-
-  # ---------------------------------------------------------------------
-
-  # adição de uma coluna de gols totais que soma FTHG + FTAG nos dados
-  csv_data <- csv_data %>% mutate(csv_data, total_goals = FTHG + FTAG)
-
-  # gols tomados pela equipe de fora e de casa
-  csv_data <- mutate(csv_data, FTHGt = csv_data$FTAG)
-  csv_data <- mutate(csv_data, FTAGt = csv_data$FTHG)
-
-  # média cumulativa de gols tomados pela equipe de fora e de casa
-  csv_data <- csv_data %>% group_by(AwayTeam) %>% mutate(MFTAGm = cummean(FTAG))
-  csv_data <- csv_data %>% group_by(HomeTeam) %>% mutate(MFTHGm = cummean(FTHG))
-  csv_data <- csv_data %>% group_by(AwayTeam) %>% mutate(MFTAGt = cummean(FTAGt))
-  csv_data <- csv_data %>% group_by(HomeTeam) %>% mutate(MFTHGt = cummean(FTHGt))
-
-  return(csv_data)
-
-}
-
 train_simulate_model <- function(csv_data, training_size, stake, variables, bet_decision) {
 
   attach(csv_data)
 
-  if (bet_decision == 1) {
+  if (bet_decision == 0) {
     bet_thresh <- 2.5
-  } else if (bet_decision == 2) {
+  } else if (bet_decision == 1) {
     bet_thresh <- 2.7
-  } else if (bet_decision == 3) {
+  } else if (bet_decision == 2) {
     bet_thresh <- 2.9
+  } else {
+    bet_thresh <- 2.5
   }
 
   # game_data são os primeiros 70 jogos da coleção de 380 jogos
   game_data <- csv_data[1:training_size, ]
+
+  # definição de regressão linear com totalGolas como v.d. e FTHGb e FTAGb como v.i.
+  adjustment <- lm(game_data$total_goals ~ MFTAGt + MFTHGt, data = game_data)
 
   # stake = valor apostado
   stake <- 100
