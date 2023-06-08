@@ -26,6 +26,6 @@ prof_x_acc <- ggplot(csv_data, aes(x = Profit, y = Accuracy, color = TrainingDat
     scale_color_discrete(name = "Traning Data Size") +
     labs(caption = captions)
 
-ggsave("nvar_vs_prof.pdf", nvar_x_prof)
-ggsave("nvar_vs_acc.pdf", nvar_x_acc)
-ggsave("prof_vs_acc.pdf", prof_x_acc)
+ggsave("plots/nvar_vs_prof.pdf", nvar_x_prof)
+ggsave("plots/nvar_vs_acc.pdf", nvar_x_acc)
+ggsave("plots/prof_vs_acc.pdf", prof_x_acc)
