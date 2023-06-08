@@ -25,20 +25,15 @@ csv_data <- csv_data %>% group_by(HomeTeam) %>% mutate(MFTHGm = cummean(FTHG))
 csv_data <- csv_data %>% group_by(AwayTeam) %>% mutate(MFTAGt = cummean(FTAGt))
 csv_data <- csv_data %>% group_by(HomeTeam) %>% mutate(MFTHGt = cummean(FTHGt))
 
-write.csv(csv_data, file = "csv_mutated.csv")
-
 # "importação" dos dados no código, é possível usar as colunas diretamente
 attach(csv_data)
 
 # game_data são os primeiros 70 jogos da coleção de 380 jogos
-training_size <- 80
+training_size <- 30
 game_data <- csv_data[1:training_size, ]
 
 # definição de regressão linear com totalGolas como v.d. e FTHGb e FTAGb como v.i.
 adjustment <- lm(game_data$total_goals ~ MFTAGt + MFTHGt, data = game_data)
-
-# print de informações sobre a regressão linear
-# summary(adjustment)
 
 # stake = valor apostado
 stake <- 100
@@ -124,21 +119,23 @@ for (i in 1:iteration_rest) {
 
 }
 
-round_profit # chamar a variável assim é basicamente um print no RStudio
-round_hit_prop
+# round_profit # chamar a variável assim é basicamente um print no RStudio
+# round_hit_prop
+
+cat("Training games:", training_size, "\n")
 
 # a soma dos lucros de cada rodada
 season_profit <- sum(round_profit)
-season_profit
+cat("Profit:", season_profit, "\n")
 
 # média de acertos a cada rodada
-mean(round_hit_prop, na.rm = TRUE)
+cat("Accuracy:", mean(round_hit_prop, na.rm = TRUE), "\n")
 # mediana de acertos a cada rodada
-median(round_hit_prop, na.rm = TRUE)
+# median(round_hit_prop, na.rm = TRUE)
 
-games_counter
+# games_counter
 
 # lucro acumulado na temporada
-acc_profit <- cumsum(round_profit)
+# acc_profit <- cumsum(round_profit)
 
-plot(acc_profit, col = "blue", type = "h")
+# plot(acc_profit, col = "blue", type = "h")
