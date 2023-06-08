@@ -59,13 +59,12 @@ for (i in 1:iteration_rest) {
   limit_input <- (training_size - offset_training) + (offset_training * i)
   # na primeira iteração, se pega os dados dos primeiros 70 jogos e os primeiros 70 totais de gols
   game_data <- csv_data[1:limit_input, ]
-  total_goals_iterate <- total_goals[1:limit_input]
 
   # refaz a regressão linear com -1 para remover o (intercept) (assume
   # que a variável passa por (0,0) na ausencia de variáveis independentes)
   # TODO: dúvida: porque remover o (intercept) agora e porque adjustment foi criado antes e não só agora?
   # variáveis que tem que ser adicionadas são as médias de gols tomados pelos times
-  adjustment <- lm(total_goals_iterate ~ MFTAGt + MFTHGt + MFTAGm + MFTHGm + OddO2.5 - 1, data = game_data)
+  adjustment <- lm(total_goals ~ MFTAGt + MFTHGt + MFTAGm + MFTHGm + OddO2.5 - 1, data = game_data)
 
   # calcula média de gols para jogos futuros (10 jogos depois da iteração atual) considerando coeficientes da regressão linear
   # sempre se calcula a média de gols para o intervalo de [jogosPassados:jogosPassados + 10], ou seja, apenas dos 10 previstos
