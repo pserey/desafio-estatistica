@@ -5,7 +5,7 @@ Neste repositório estão os códigos em R e em Python (não funcional e apenas 
 > Mais sobre o desenvolvimento e tomada de escolhas nesta [documentação]().
 
 ## Clonando e rodando o código
-Para rodar o código, deve-se ter `R` e seu ambiente instalado na sua máquina assim como as seguintes bibliotecas de `R`:
+Para rodar o código, deve-se ter R e seu ambiente instalado na sua máquina assim como as seguintes bibliotecas da linguagem:
 
 - Tidyverse
 - dplyr
