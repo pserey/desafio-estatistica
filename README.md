@@ -17,4 +17,4 @@ Com o ambiente devidamente configurado, é possível clonar o repositório em su
 git clone https://github.com/pserey/desafio-estatistica
 ```
 
-Após clonado, dentro do repositório é possível rodar os scripts de R contidos em `./desafio-estatistica/R/`.
+Após clonado, é possível treinar o modelo de regressão com um CSV com no mínimo 40 jogos com resultados (quantidade mínima escolhida para o treinamento). A partir desses 40, qualquer jogo restante será previsto e o modelo retornará os jogos nos quais há evidência estatística de que a quantidade de gols será maior que 2.5.
