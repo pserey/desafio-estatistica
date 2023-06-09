@@ -13,9 +13,10 @@ library(dplyr)
 # returns the list of games that have a chance to get more than 2.5 goals
 predict_games <- function(games_file) {
 
-  csv_data <- pre_process(games_file)
-
   training_size <- 40
+
+  csv_data <- pre_process(games_file, 40)
+
   variables <- c("MFTAGt", "MFTHGt", "MFTAGm", "OddO2.5")
   bet_thresh <- 2.7
 
@@ -25,7 +26,7 @@ predict_games <- function(games_file) {
 
   total_games <- nrow(csv_data)
   offset_training <- 10
-  iteration_rest <- ceiling((total_games - training_size) / offset_training)
+  iteration_rest <- floor((total_games - training_size) / offset_training)
 
   # vector with "safe" games to bet
   safe_games <- c()
@@ -56,6 +57,7 @@ predict_games <- function(games_file) {
         safe_games <- c(safe_games, paste("Game", csv_data$jogo[(limit_input + j)], " | ", csv_data$HomeTeam[(limit_input + j)], "vs.", csv_data$AwayTeam[(limit_input + j)]))
       }
     }
+
   }
 
   detach(csv_data)
@@ -63,7 +65,7 @@ predict_games <- function(games_file) {
   return(safe_games)
 }
 
-pre_process <- function(file_name) {
+pre_process <- function(file_name, training_set) {
 
   # csv_data <- read.csv("premier2020_21.csv", dec = ".")
 
@@ -75,18 +77,23 @@ pre_process <- function(file_name) {
 
   # ---------------------------------------------------------------------
 
+  csv_data_calc <- csv_data[1:40, ]
+
   # adição de uma coluna de gols totais que soma FTHG + FTAG nos dados
-  csv_data <- csv_data %>% mutate(csv_data, total_goals = FTHG + FTAG)
+  csv_data_calc <- csv_data_calc %>% mutate(csv_data_calc, total_goals = FTHG + FTAG)
 
   # gols tomados pela equipe de fora e de casa
-  csv_data <- mutate(csv_data, FTHGt = csv_data$FTAG)
-  csv_data <- mutate(csv_data, FTAGt = csv_data$FTHG)
+  csv_data_calc <- mutate(csv_data_calc, FTHGt = csv_data_calc$FTAG)
+  csv_data_calc <- mutate(csv_data_calc, FTAGt = csv_data_calc$FTHG)
 
-  # média cumulativa de gols tomados pela equipe de fora e de casa
-  csv_data <- csv_data %>% group_by(AwayTeam) %>% mutate(MFTAGm = cummean(FTAG))
-  csv_data <- csv_data %>% group_by(HomeTeam) %>% mutate(MFTHGm = cummean(FTHG))
-  csv_data <- csv_data %>% group_by(AwayTeam) %>% mutate(MFTAGt = cummean(FTAGt))
-  csv_data <- csv_data %>% group_by(HomeTeam) %>% mutate(MFTHGt = cummean(FTHGt))
+  csv_data <- csv_data %>% group_by(AwayTeam) %>% mutate(MFTAGm = ifelse(jogo > training_set, NA, lag(cummean(FTAG), default = 0))) %>% ungroup()
+  csv_data <- csv_data %>% group_by(HomeTeam) %>% mutate(MFTHGm = ifelse(jogo > training_set, NA, lag(cummean(FTHG), default = 0))) %>% ungroup()
+  csv_data <- csv_data %>% group_by(AwayTeam) %>% mutate(MFTAGt = ifelse(jogo > training_set, NA, lag(cummean(FTAGt), default = 0))) %>% ungroup()
+  csv_data <- csv_data %>% group_by(HomeTeam) %>% mutate(MFTHGt = ifelse(jogo > training_set, NA, lag(cummean(FTHGt), default = 0))) %>% ungroup()
+
+  # setar médias de jogos anteriores nos jogos restantes
+  csv_data <- csv_data %>% group_by(AwayTeam) %>% fill(MFTAGm, MFTAGt, .direction = "down") %>% ungroup()
+  csv_data <- csv_data %>% group_by(HomeTeam) %>% fill(MFTHGm, MFTHGt, .direction = "down") %>% ungroup()
 
   return(csv_data)
 }

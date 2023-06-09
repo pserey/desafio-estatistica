@@ -1,7 +1,8 @@
 library(tidyverse)
 library(dplyr)
+library(tidyr)
 
-pre_process <- function(file_name) {
+pre_process <- function(file_name, training_set) {
 
   # csv_data <- read.csv("premier2020_21.csv", dec = ".")
 
@@ -20,15 +21,20 @@ pre_process <- function(file_name) {
   csv_data <- mutate(csv_data, FTHGt = csv_data$FTAG)
   csv_data <- mutate(csv_data, FTAGt = csv_data$FTHG)
 
-  # média cumulativa de gols tomados pela equipe de fora e de casa
-  csv_data <- csv_data %>% group_by(AwayTeam) %>% mutate(MFTAGm = cummean(FTAG))
-  csv_data <- csv_data %>% group_by(HomeTeam) %>% mutate(MFTHGm = cummean(FTHG))
-  csv_data <- csv_data %>% group_by(AwayTeam) %>% mutate(MFTAGt = cummean(FTAGt))
-  csv_data <- csv_data %>% group_by(HomeTeam) %>% mutate(MFTHGt = cummean(FTHGt))
+  # média cumulativa de gols tomados pela equipe de fora e de casa (até o tamanho do dataset de treino)
+  csv_data <- csv_data %>% group_by(AwayTeam) %>% mutate(MFTAGm = ifelse(jogo > training_set, NA, lag(cummean(FTAG), default = 0))) %>% ungroup()
+  csv_data <- csv_data %>% group_by(HomeTeam) %>% mutate(MFTHGm = ifelse(jogo > training_set, NA, lag(cummean(FTHG), default = 0))) %>% ungroup()
+  csv_data <- csv_data %>% group_by(AwayTeam) %>% mutate(MFTAGt = ifelse(jogo > training_set, NA, lag(cummean(FTAGt), default = 0))) %>% ungroup()
+  csv_data <- csv_data %>% group_by(HomeTeam) %>% mutate(MFTHGt = ifelse(jogo > training_set, NA, lag(cummean(FTHGt), default = 0))) %>% ungroup()
+
+  # setar médias de jogos anteriores nos jogos restantes
+  csv_data <- csv_data %>% group_by(AwayTeam) %>% fill(MFTAGm, MFTAGt, .direction = "down") %>% ungroup()
+  csv_data <- csv_data %>% group_by(HomeTeam) %>% fill(MFTHGm, MFTHGt, .direction = "down") %>% ungroup()
 
   return(csv_data)
 
 }
+
 
 train_simulate_model <- function(csv_data, training_size, stake, variables, bet_decision) {
 
@@ -123,3 +129,6 @@ train_simulate_model <- function(csv_data, training_size, stake, variables, bet_
 
   return(c(season_profit, accuracy, betted_round))
 }
+
+d1_proc <- pre_process("data/D1.csv", 40)
+write.csv(d1_proc, "data/teste_D1.csv", row.names = FALSE)
