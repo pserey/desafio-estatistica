@@ -1,9 +1,12 @@
 library(dplyr)
 source("R/model_functions.r")
 
-csv_data <- pre_process("data/E0_2021.csv")
 
-get_plot_data <- function(csv_data, training_size, bet_decision) {
+
+get_plot_data <- function(csv_file_name, training_size, bet_decision) {
+
+    csv_data <- pre_process(csv_file_name, training_set = training_size)
+
     variables <- c("MFTAGt", "MFTHGt", "MFTAGm", "MFTHGm", "OddO2.5")
     selected_vars_col <- c()
     nvars_col <- c()
@@ -44,16 +47,14 @@ decision_df <- data.frame()
 
 for (arq in 1:arquivos_idx) {
 
-    csv_data <- pre_process(arquivos[arq])
-
     for (i in 1:thresholds_idx) {
 
         all_cases_threshold <- data.frame()
 
-        data_min <- get_plot_data(csv_data = csv_data, training_size = 40, bet_decision = i)
-        data_low <- get_plot_data(csv_data = csv_data, training_size = 140, bet_decision = i)
-        data_med <- get_plot_data(csv_data = csv_data, training_size = 240, bet_decision = i)
-        data_max <- get_plot_data(csv_data = csv_data, training_size = 340, bet_decision = i)
+        data_min <- get_plot_data(csv_file_name = arquivos[arq], training_size = 40, bet_decision = i)
+        data_low <- get_plot_data(csv_file_name = arquivos[arq], training_size = 140, bet_decision = i)
+        data_med <- get_plot_data(csv_file_name = arquivos[arq], training_size = 240, bet_decision = i)
+        data_max <- get_plot_data(csv_file_name = arquivos[arq], training_size = 340, bet_decision = i)
 
         data_min$TrainingDataSize <- "Min"
         data_low$TrainingDataSize <- "Low"
