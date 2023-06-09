@@ -107,5 +107,7 @@ pre_process <- function(file_name, training_set) {
   return(csv_data)
 }
 
-file <- "data/predict_final_test.csv"
+args <- commandArgs(trailingOnly = TRUE)
+file <- args[1]
+
 predict_games(file)

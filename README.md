@@ -18,4 +18,13 @@ Com o ambiente devidamente configurado, é possível clonar o repositório em su
 git clone https://github.com/pserey/desafio-estatistica
 ```
 
-Após clonado, é possível treinar o modelo de regressão com um CSV com no mínimo 40 jogos com resultados (quantidade mínima escolhida para o treinamento). A partir desses 40, qualquer jogo restante será previsto e o modelo retornará os jogos nos quais há evidência estatística de que a quantidade de gols será maior que 2.5.
+Após clonado, é possível executar o modelo da seguinte maneira:
+
+- Montar um CSV com jogos com resultados e jogos sem resultados (jogos a ser previstos). 
+- Para rodar o modelo em cima do CSV, é possível usar a ferramenta de linha de comando de R com o nome do arquivo como argumento:
+```
+Rscript final/modelo_real.R "arquivo.csv"
+```
+> Dar atenção ao local do arquivo que deve ser relativo ao diretório onde o script está rodando.
+
+- A partir desses dados, o modelo irá tentar prever os jogos sem resultados a partir dos dados calculados dos jogos anteriores e retornará a lista de jogos que o modelo considera como boas apostas.
