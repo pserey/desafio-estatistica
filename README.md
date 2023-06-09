@@ -9,6 +9,7 @@ Para rodar o código, deve-se ter R e seu ambiente instalado na sua máquina ass
 
 - Tidyverse
 - dplyr
+- tidyr
 - ggplot2
 
 Com o ambiente devidamente configurado, é possível clonar o repositório em sua máquina da seguinte maneira:
