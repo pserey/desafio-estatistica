@@ -37,8 +37,11 @@ get_plot_data <- function(csv_file_name, training_size, bet_decision) {
     return(data)
 }
 
-arquivos_idx <- 3
-arquivos <- c("data/E0_2021.csv", "data/E0_2223.csv", "data/E0_2122.csv")
+arquivos_idx <- 9
+arquivos <- c("data/E0_2021.csv", "data/E0_2223.csv", "data/E0_2122.csv",
+            "data/validacao/B1_2021.csv", "data/validacao/B1_2122.csv",
+            "data/validacao/B1_2223.csv", "data/validacao/SP1_2021.csv",
+            "data/validacao/SP1_2122.csv", "data/validacao/SP1_2223.csv")
 
 thresholds_idx <- 3
 thresholds <- c(2.5, 2.7, 2.9)

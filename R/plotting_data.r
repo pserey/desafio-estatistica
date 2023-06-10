@@ -65,8 +65,8 @@ threshold_num_bets <- ggplot(csv_data, aes(x = as.factor(Threshold), y = avgBets
 # ggsave("plots/prof_vs_acc.pdf", prof_x_acc)
 print(csv_data[1:1, ])
 
-# ggsave("plots/models_thresh.png", different_models_thresh)
+ggsave("plots/models_thresh.png", different_models_thresh)
 # ggsave("plots/models_vars.png", different_models_vars)
-# ggsave("plots/models_data.png", different_models_data)
-# ggsave("plots/accuracy_datasize.png", data_size_accuracy)
+ggsave("plots/models_data.png", different_models_data)
+ggsave("plots/accuracy_datasize.png", data_size_accuracy)
 ggsave("plots/threshold_bets.png", threshold_num_bets)

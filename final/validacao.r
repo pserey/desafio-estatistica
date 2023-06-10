@@ -2,7 +2,9 @@ library(tidyverse)
 library(dplyr)
 library(tidyr)
 
-pre_process <- function(file_name, training_set) {
+pre_process <- function(file_name) {
+
+  training_set <- 240
 
   # csv_data <- read.csv("premier2020_21.csv", dec = ".")
 
@@ -13,6 +15,7 @@ pre_process <- function(file_name, training_set) {
   names(csv_data)[b365_index] <- "OddO2.5"
   essential_columns <- c("FTHG", "FTAG", "OddO2.5")
   csv_data <- csv_data[rowSums(is.na(csv_data[essential_columns])) == 0, ]
+
   # ---------------------------------------------------------------------
 
   # adição de uma coluna de gols totais que soma FTHG + FTAG nos dados
@@ -52,23 +55,19 @@ recalculate_means <- function(csv_data, training_set) {
 }
 
 
-train_simulate_model <- function(csv_file, csv_data, training_size, stake, variables, bet_decision) {
+train_simulate_model <- function(csv_data) {
+
+  training_size <- 240
+  stake <- 100
+  bet_thresh <- 2.5
+  variables <- c("MFTHGm", "MFTHGt")
 
   attach(csv_data)
-
-  if (bet_decision == 1) {
-    bet_thresh <- 2.5
-  } else if (bet_decision == 2) {
-    bet_thresh <- 2.7
-  } else if (bet_decision == 3) {
-    bet_thresh <- 2.9
-  }
 
   # game_data são os primeiros 70 jogos da coleção de 380 jogos
   game_data <- csv_data[1:training_size, ]
 
   # stake = valor apostado
-  stake <- 100
   total_games <- nrow(csv_data)
   offset_training <- 10
   iteration_rest <- (total_games - training_size) / offset_training
@@ -147,5 +146,51 @@ train_simulate_model <- function(csv_file, csv_data, training_size, stake, varia
   return(c(season_profit, accuracy, betted_round))
 }
 
-d1_proc <- pre_process("data/segunda-validacao/SC0_2223.csv", 40)
-write.csv(d1_proc, "data/teste_D1.csv", row.names = FALSE)
+results <- function(file_name, tournament, season) {
+  csv_data <- pre_process(file_name)
+  results <- train_simulate_model(csv_data)
+
+  final_results <- c(tournament, season, results[1], results[2], results[3])
+
+  return(final_results)
+}
+
+# campeonato belga
+belgium_2021 <- results("data/validacao/B1_2021.csv", "Belga", "20-21")
+belgium_2122 <- results("data/validacao/B1_2122.csv", "Belga", "21-22")
+belgium_2223 <- results("data/validacao/B1_2223.csv", "Belga", "22-23")
+
+# campeonato holandes
+ingles_2021 <- results("data/validacao/E0_2021.csv", "Ingles", "20-21")
+ingles_2122 <- results("data/validacao/E0_2122.csv", "Ingles", "21-22")
+ingles_2223 <- results("data/validacao/E0_2223.csv", "Ingles", "22-23")
+
+# campeonato grego
+spain_2021 <- results("data/validacao/SP1_2021.csv", "Espanhol", "20-21")
+spain_2122 <- results("data/validacao/SP1_2122.csv", "Espanhol", "21-22")
+spain_2223 <- results("data/validacao/SP1_2223.csv", "Espanhol", "22-23")
+
+validacao <- data.frame(
+  Campeonato = character(),
+  Temporada = character(),
+  Lucro = numeric(),
+  Acurácia = numeric(),
+  NumApostas = integer(),
+  stringsAsFactors = FALSE
+)
+
+validacao <- rbind(validacao, ingles_2021)
+validacao <- rbind(validacao, ingles_2122)
+validacao <- rbind(validacao, ingles_2223)
+
+validacao <- rbind(validacao, belgium_2021)
+validacao <- rbind(validacao, belgium_2122)
+validacao <- rbind(validacao, belgium_2223)
+
+validacao <- rbind(validacao, spain_2021)
+validacao <- rbind(validacao, spain_2122)
+validacao <- rbind(validacao, spain_2223)
+
+colnames(validacao) <- c("Campeonato", "Temporada", "MLucro", "MAcuracia", "NApostas")
+
+write.csv(validacao, "final/validacao_resultados.csv", row.names = FALSE, quote = FALSE)
