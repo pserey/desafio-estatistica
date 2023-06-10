@@ -12,6 +12,7 @@ get_plot_data <- function(csv_file_name, training_size, bet_decision) {
     nvars_col <- c()
     accuracy_col <- c()
     profit_col <- c()
+    betted_col <- c()
 
     for (num_vars in 1:length(variables)) {
         combinations <- combn(variables, num_vars)
@@ -29,7 +30,7 @@ get_plot_data <- function(csv_file_name, training_size, bet_decision) {
             # add profit and accuracy to csv columns
             profit_col <- c(profit_col, simulation[1])
             accuracy_col <- c(accuracy_col, simulation[2])
-            betted <- simulation[3]
+            betted_col <- c(betted_col, simulation[3])
         }
     }
 
@@ -38,7 +39,7 @@ get_plot_data <- function(csv_file_name, training_size, bet_decision) {
 }
 
 arquivos_idx <- 9
-arquivos <- c("data/E0_2021.csv", "data/E0_2223.csv", "data/E0_2122.csv",
+arquivos <- c("data/validacao/E0_2021.csv", "data/validacao/E0_2223.csv", "data/validacao/E0_2122.csv",
             "data/validacao/B1_2021.csv", "data/validacao/B1_2122.csv",
             "data/validacao/B1_2223.csv", "data/validacao/SP1_2021.csv",
             "data/validacao/SP1_2122.csv", "data/validacao/SP1_2223.csv")

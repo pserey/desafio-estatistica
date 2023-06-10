@@ -2,7 +2,7 @@ library(tidyverse)
 library(dplyr)
 library(tidyr)
 
-pre_process <- function(file_name, training_set) {
+pre_process <- function(file_name, csv_data, training_set) {
 
   # csv_data <- read.csv("premier2020_21.csv", dec = ".")
 
@@ -52,7 +52,7 @@ recalculate_means <- function(csv_data, training_set) {
 }
 
 
-train_simulate_model <- function(csv_file, csv_data, training_size, stake, variables, bet_decision) {
+train_simulate_model <- function(csv_data, training_size, stake, variables, bet_decision) {
 
   attach(csv_data)
 
@@ -144,8 +144,5 @@ train_simulate_model <- function(csv_file, csv_data, training_size, stake, varia
 
   detach(csv_data)
 
-  return(c(season_profit, accuracy, betted_round))
+  return(c(season_profit, accuracy, sum(betted_round)))
 }
-
-d1_proc <- pre_process("data/segunda-validacao/SC0_2223.csv", 40)
-write.csv(d1_proc, "data/teste_D1.csv", row.names = FALSE)
