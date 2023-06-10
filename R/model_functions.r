@@ -35,8 +35,23 @@ pre_process <- function(file_name, training_set) {
 
 }
 
+recalculate_means <- function(csv_data, training_set) {
 
-train_simulate_model <- function(csv_data, training_size, stake, variables, bet_decision) {
+  csv_data <- csv_data %>% group_by(AwayTeam) %>% mutate(MFTAGm = ifelse(jogo > training_set, NA, lag(cummean(FTAG), default = 0))) %>% ungroup()
+  csv_data <- csv_data %>% group_by(HomeTeam) %>% mutate(MFTHGm = ifelse(jogo > training_set, NA, lag(cummean(FTHG), default = 0))) %>% ungroup()
+  csv_data <- csv_data %>% group_by(AwayTeam) %>% mutate(MFTAGt = ifelse(jogo > training_set, NA, lag(cummean(FTAGt), default = 0))) %>% ungroup()
+  csv_data <- csv_data %>% group_by(HomeTeam) %>% mutate(MFTHGt = ifelse(jogo > training_set, NA, lag(cummean(FTHGt), default = 0))) %>% ungroup()
+
+  # setar médias de jogos anteriores nos jogos restantes
+  csv_data <- csv_data %>% group_by(AwayTeam) %>% fill(MFTAGm, MFTAGt, .direction = "down") %>% ungroup()
+  csv_data <- csv_data %>% group_by(HomeTeam) %>% fill(MFTHGm, MFTHGt, .direction = "down") %>% ungroup()
+
+  return(csv_data)
+
+}
+
+
+train_simulate_model <- function(csv_file, csv_data, training_size, stake, variables, bet_decision) {
 
   attach(csv_data)
 
@@ -70,7 +85,8 @@ train_simulate_model <- function(csv_data, training_size, stake, variables, bet_
     # limit_input = 60 + 10 * i
     limit_input <- (training_size - offset_training) + (offset_training * i)
 
-    # a cada rodada, se usa os dados até limit_input para treinar
+    # a cada rodada, se usa os dados até limit_input para treinar (re-pre-processando os dados)
+    csv_data <- recalculate_means(csv_data, limit_input)
     game_data <- csv_data[1:limit_input, ]
 
     # refaz a regressão linear com -1 para remover o intercept

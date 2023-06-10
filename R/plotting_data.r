@@ -38,8 +38,12 @@ different_models_vars <- ggplot(csv_data, aes(x = avgProfit, y = avgHitRate, col
     ggtitle("Average Profit vs. Average Hit Rate (separated by training variables)") +
     scale_color_discrete(name = "Training variables")
 
+optimal_model <- which.max(csv_data$avgProfit)
+
 different_models_data <- ggplot(csv_data, aes(x = avgProfit, y = avgHitRate, color = TrainingDataSize)) +
-    geom_point() +
+    # geom_point() +
+    geom_point(data = csv_data, aes(x = avgProfit, y = avgHitRate, color = TrainingDataSize)) +
+    geom_point(data = csv_data[optimal_model, ], aes(x = avgProfit, y = avgHitRate), color = "red") +
     labs(x = "Average Profit", y = "Average Hit Rate") +
     ggtitle("Average Profit vs. Average Hit Rate (separated by training dataset size)") +
     scale_color_discrete(name = "Training dataset size")
@@ -50,6 +54,12 @@ data_size_accuracy <- ggplot(csv_data, aes(x = TrainingDataSize, y = avgHitRate,
     ggtitle("Accuracy for different training dataset sizes") +
     scale_color_discrete(name = "Traning Data Size")
 
+threshold_num_bets <- ggplot(csv_data, aes(x = as.factor(Threshold), y = avgBets, color = TrainingDataSize)) +
+    geom_point() +
+    labs(x = "Betting Threshold", y = "Average number of bets") +
+    ggtitle("Average bets for different betting thresholds") +
+    scale_color_discrete(name = "Traning Data Size")
+
 # ggsave("plots/nvar_vs_prof.pdf", nvar_x_prof)
 # ggsave("plots/nvar_vs_acc.pdf", nvar_x_acc)
 # ggsave("plots/prof_vs_acc.pdf", prof_x_acc)
@@ -58,4 +68,5 @@ print(csv_data[1:1, ])
 # ggsave("plots/models_thresh.png", different_models_thresh)
 # ggsave("plots/models_vars.png", different_models_vars)
 # ggsave("plots/models_data.png", different_models_data)
-ggsave("plots/accuracy_datasize.png", data_size_accuracy)
+# ggsave("plots/accuracy_datasize.png", data_size_accuracy)
+ggsave("plots/threshold_bets.png", threshold_num_bets)
