@@ -85,7 +85,8 @@ pre_process <- function(file_name, training_set) {
   csv_data <- mutate(csv_data, jogo = row_number())
   b365_index <- which(names(csv_data) == "B365.2.5")
   names(csv_data)[b365_index] <- "OddO2.5"
-
+  essential_columns <- c("FTHG", "FTAG", "OddO2.5")
+  csv_data <- csv_data[rowSums(is.na(csv_data[essential_columns])) == 0, ]
   # ---------------------------------------------------------------------
 
   # adição de uma coluna de gols totais que soma FTHG + FTAG nos dados
