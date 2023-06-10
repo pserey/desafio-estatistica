@@ -44,11 +44,18 @@ different_models_data <- ggplot(csv_data, aes(x = avgProfit, y = avgHitRate, col
     ggtitle("Average Profit vs. Average Hit Rate (separated by training dataset size)") +
     scale_color_discrete(name = "Training dataset size")
 
+data_size_accuracy <- ggplot(csv_data, aes(x = TrainingDataSize, y = avgHitRate, color = TrainingDataSize)) +
+    geom_point() +
+    labs(x = "Training dataset size", y = "Accuracy") +
+    ggtitle("Accuracy for different training dataset sizes") +
+    scale_color_discrete(name = "Traning Data Size")
+
 # ggsave("plots/nvar_vs_prof.pdf", nvar_x_prof)
 # ggsave("plots/nvar_vs_acc.pdf", nvar_x_acc)
 # ggsave("plots/prof_vs_acc.pdf", prof_x_acc)
 print(csv_data[1:1, ])
 
-ggsave("plots/models_thresh.png", different_models_thresh)
-ggsave("plots/models_vars.png", different_models_vars)
-ggsave("plots/models_data.png", different_models_data)
+# ggsave("plots/models_thresh.png", different_models_thresh)
+# ggsave("plots/models_vars.png", different_models_vars)
+# ggsave("plots/models_data.png", different_models_data)
+ggsave("plots/accuracy_datasize.png", data_size_accuracy)

@@ -24,7 +24,7 @@ get_plot_data <- function(csv_file_name, training_size, bet_decision) {
             selected_vars_col <- c(selected_vars_col, sv_str)
             nvars_col <- c(nvars_col, length(selected_vars))
 
-            simulation <- train_simulate_model(csv_data = csv_data, training_size = training_size, stake = 100, variables = selected_vars, bet_decision = bet_decision)
+            simulation <- train_simulate_model(csv_file_name, csv_data = csv_data, training_size = training_size, stake = 100, variables = selected_vars, bet_decision = bet_decision)
 
             # add profit and accuracy to csv columns
             profit_col <- c(profit_col, simulation[1])
@@ -71,7 +71,7 @@ for (arq in 1:arquivos_idx) {
 
 # decision loop: the best row is the row with larger average profit for the combination of Threshold, Variables and Dataset Size
 grouped_tuples <- decision_df %>% group_by(Threshold, Variables, TrainingDataSize)
-average_profit <- summarise(grouped_tuples, avgProfit = mean(Profit), avgHitRate = mean(Accuracy))
+average_profit <- summarise(grouped_tuples, avgProfit = mean(Profit), avgHitRate = mean(Accuracy), avgBets = mean(NumBets))
 
 write.csv(average_profit, "data/simulation.csv", row.names = FALSE)
 

@@ -5,9 +5,9 @@ library(dplyr)
 # average hit rate calculated: 56.2%
 
 # independent variables, model threshold and training dataset size
-# threshold: 2.5
-# variables: MFTAGt , MFTHGt , MFTAGm
-# trainind dataset size: 140
+# threshold: 2.7
+# variables: MFTAGt , MFTHGm
+# trainind dataset size: 240
 
 # recieves csv with 50+ games (being at least 40 completed) and
 # returns the list of games that have a chance to get more than 2.5 goals
@@ -17,17 +17,17 @@ predict_games <- function(games_file) {
   data_raw <- read.csv(games_file)
   trainable_rows <- sum(!is.na(data_raw$FTHG))
 
-  training_size <- 140
+  training_size <- 240
 
   if (trainable_rows < training_size) {
     print("Warning: there is not sufficient game data for predicting accurately.")
     training_size <- trainable_rows
   }
 
-  csv_data <- pre_process(games_file, 40)
+  csv_data <- pre_process(games_file, 240)
 
-  variables <- c("MFTAGt", "MFTHGt", "MFTAGm")
-  bet_thresh <- 2.5
+  variables <- c("MFTAGt", "MFTHGm")
+  bet_thresh <- 2.7
 
   attach(csv_data)
 
