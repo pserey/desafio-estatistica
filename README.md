@@ -11,6 +11,8 @@ Para rodar o código, deve-se ter R e seu ambiente instalado na sua máquina ass
 - dplyr
 - tidyr
 - ggplot2
+- here
+- httr
 
 Com o ambiente devidamente configurado, é possível clonar o repositório em sua máquina da seguinte maneira:
 
@@ -18,7 +20,9 @@ Com o ambiente devidamente configurado, é possível clonar o repositório em su
 git clone https://github.com/pserey/desafio-estatistica
 ```
 
-Após clonado, é possível executar o modelo da seguinte maneira:
+Após clonado, é possível executar o modelo de duas maneiras: para o uso real de previsões de apostas suas ou para simular o modelo em campeonatos cadastrados no software
+
+### Uso real do modelo (escolha de jogos para apostas)
 
 - Montar um CSV com jogos com resultados e jogos sem resultados (jogos a ser previstos). 
 - Para rodar o modelo em cima do CSV, é possível usar a ferramenta de linha de comando de R com o nome do arquivo como argumento:
@@ -28,3 +32,20 @@ Rscript final/modelo_real.R "arquivo.csv"
 > Dar atenção ao local do arquivo que deve ser relativo ao diretório onde o script está rodando.
 
 - A partir desses dados, o modelo irá tentar prever os jogos sem resultados a partir dos dados calculados dos jogos anteriores e retornará a lista de jogos que o modelo considera como boas apostas.
+
+### Simulação do modelo
+
+```
+Rscript final/leitura.R
+```
+
+- Ao rodar esse script, um menu para selecionar uma temporada específica de um campeonato irá aparecer. Para selecionar a temporada, basta rodar novamente o script com a opção como argumento
+
+```
+Rscript final/leitura.R <temporada>
+```
+- Após isso, um menu para a escolha de um país será apresentado. É possível escolher um desses países para simular o modelo na temporada escolhida do principal campeonato do país. Basta adicionar o país como argumento novamente.
+
+```
+Rscript final/leitura.R <temporada> <pais>
+```
