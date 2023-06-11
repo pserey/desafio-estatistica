@@ -25,7 +25,7 @@ get_plot_data <- function(csv_file_name, training_size, bet_decision) {
             selected_vars_col <- c(selected_vars_col, sv_str)
             nvars_col <- c(nvars_col, length(selected_vars))
 
-            simulation <- train_simulate_model(csv_file_name, csv_data = csv_data, training_size = training_size, stake = 100, variables = selected_vars, bet_decision = bet_decision)
+            simulation <- train_simulate_model(csv_data = csv_data, training_size = training_size, stake = 100, variables = selected_vars, bet_decision = bet_decision)
 
             # add profit and accuracy to csv columns
             profit_col <- c(profit_col, simulation[1])
@@ -33,8 +33,7 @@ get_plot_data <- function(csv_file_name, training_size, bet_decision) {
             betted_col <- c(betted_col, simulation[3])
         }
     }
-
-    data <- data.frame(NVariables = nvars_col, Variables = selected_vars_col, Profit = profit_col, Accuracy = accuracy_col, NumBets = betted)
+    data <- data.frame(NVariables = nvars_col, Variables = selected_vars_col, Profit = profit_col, Accuracy = accuracy_col, NumBets = betted_col)
     return(data)
 }
 
