@@ -5,7 +5,7 @@ library(dplyr)
 # average hit rate calculated: 56.2%
 
 # independent variables, model threshold and training dataset size
-# threshold: 2.7
+# threshold: 2.5
 # variables: MFTAGt , MFTHGm
 # trainind dataset size: 240
 
@@ -26,8 +26,8 @@ predict_games <- function(games_file) {
 
   csv_data <- pre_process(games_file, 240)
 
-  variables <- c("MFTAGt", "MFTHGm")
-  bet_thresh <- 2.7
+  variables <- c("MFTHGt", "MFTHGm")
+  bet_thresh <- 2.5
 
   attach(csv_data)
 
@@ -108,7 +108,10 @@ pre_process <- function(file_name, training_set) {
   return(csv_data)
 }
 
+setwd("data/")
+
 args <- commandArgs(trailingOnly = TRUE)
 file <- args[1]
 
-predict_games(file)
+res <- predict_games(file)
+res

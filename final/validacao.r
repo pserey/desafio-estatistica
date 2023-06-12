@@ -143,7 +143,9 @@ train_simulate_model <- function(csv_data) {
 
   detach(csv_data)
 
-  return(c(season_profit, accuracy, betted_round))
+  total_betted <- sum(betted_round, na.rm = TRUE)
+
+  return(c(season_profit, accuracy, total_betted))
 }
 
 results <- function(file_name, tournament, season) {
