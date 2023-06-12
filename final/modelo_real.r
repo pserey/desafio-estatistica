@@ -33,9 +33,9 @@ predict_games <- function(games_file) {
 
   game_data <- csv_data[1:training_size, ]
 
-  total_games <- nrow(csv_data)
+  total_games <- nrow(data_raw)
   offset_training <- 10
-  iteration_rest <- floor((total_games - training_size) / offset_training)
+  iteration_rest <- ceiling((total_games - training_size) / offset_training)
 
   # vector with "safe" games to bet
   safe_games <- c()
@@ -85,7 +85,7 @@ pre_process <- function(file_name, training_set) {
   csv_data <- mutate(csv_data, jogo = row_number())
   b365_index <- which(names(csv_data) == "B365.2.5")
   names(csv_data)[b365_index] <- "OddO2.5"
-  essential_columns <- c("FTHG", "FTAG", "OddO2.5")
+  essential_columns <- c("OddO2.5")
   csv_data <- csv_data[rowSums(is.na(csv_data[essential_columns])) == 0, ]
   # ---------------------------------------------------------------------
 
@@ -108,10 +108,14 @@ pre_process <- function(file_name, training_set) {
   return(csv_data)
 }
 
-setwd("data/")
+setwd("jogos/")
 
 args <- commandArgs(trailingOnly = TRUE)
 file <- args[1]
+
+if (is.na(file)) {
+  stop("Game data csv must be passed as an argument to the script")
+}
 
 res <- predict_games(file)
 res
