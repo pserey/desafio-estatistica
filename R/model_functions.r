@@ -2,7 +2,7 @@ library(tidyverse)
 library(dplyr)
 library(tidyr)
 
-pre_process <- function(file_name, csv_data, training_set) {
+pre_process <- function(file_name, training_set) {
 
   # csv_data <- read.csv("premier2020_21.csv", dec = ".")
 
