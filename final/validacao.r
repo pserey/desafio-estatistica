@@ -55,12 +55,13 @@ recalculate_means <- function(csv_data, training_set) {
 }
 
 
-train_simulate_model <- function(csv_data) {
+train_simulate_model <- function(csv_data, model_parameters) {
 
-  training_size <- 240
+  variables <- model_parameters$variables
+  training_size <- model_parameters$training_size
+  bet_thresh <- model_parameters$bet_thresh
+
   stake <- 100
-  bet_thresh <- 2.5
-  variables <- c("MFTHGm", "MFTHGt")
 
   attach(csv_data)
 
@@ -148,9 +149,24 @@ train_simulate_model <- function(csv_data) {
   return(c(season_profit, accuracy, total_betted))
 }
 
-results <- function(file_name, tournament, season) {
+results <- function(file_name, tournament, season, championship) {
+
+  if (championship == "E") {
+    model_parameters <- list(variables = c("MFTAGt", "MFTHGm"), training_size = 240, bet_thresh = 2.7)
+  } else if (championship == "F"){
+      model_parameters <- list(variables = c("MFTHGt", "OddO2.5"), training_size = 340, bet_thresh = 2.5)
+  } else if (championship == "B"){
+      model_parameters <- list(variables = c("MFTHGt", "MFTAGm"), training_size = 240, bet_thresh = 2.7)
+  } else if (championship == "D"){
+      model_parameters <- list(variables = c("MFTHGt", "MFTAGm"), training_size = 240, bet_thresh = 2.7)
+  } else if (championship == "SP"){
+      model_parameters <- list(variables = c("MFTAGt"), training_size = 140, bet_thresh = 2.7)
+  } else {
+      model_parameters <- list(variables = c("MFTHGt", "MFTHGm"), training_size = 240, bet_thresh = 2.5)
+  }
+
   csv_data <- pre_process(file_name)
-  results <- train_simulate_model(csv_data)
+  results <- train_simulate_model(csv_data, model_parameters)
 
   final_results <- c(tournament, season, results[1], results[2], results[3])
 
@@ -158,19 +174,29 @@ results <- function(file_name, tournament, season) {
 }
 
 # campeonato belga
-belgium_2021 <- results("data/validacao/B1_2021.csv", "Belga", "20-21")
-belgium_2122 <- results("data/validacao/B1_2122.csv", "Belga", "21-22")
-belgium_2223 <- results("data/validacao/B1_2223.csv", "Belga", "22-23")
+belgium_2021 <- results("data/validacao/B1_2021.csv", "Belga", "20-21", "B")
+belgium_2122 <- results("data/validacao/B1_2122.csv", "Belga", "21-22", "B")
+belgium_2223 <- results("data/validacao/B1_2223.csv", "Belga", "22-23", "B")
 
-# campeonato holandes
-ingles_2021 <- results("data/validacao/E0_2021.csv", "Ingles", "20-21")
-ingles_2122 <- results("data/validacao/E0_2122.csv", "Ingles", "21-22")
-ingles_2223 <- results("data/validacao/E0_2223.csv", "Ingles", "22-23")
+# campeonato ingles
+ingles_2021 <- results("data/validacao/E0_2021.csv", "Ingles", "20-21", "E")
+ingles_2122 <- results("data/validacao/E0_2122.csv", "Ingles", "21-22", "E")
+ingles_2223 <- results("data/validacao/E0_2223.csv", "Ingles", "22-23", "E")
 
-# campeonato grego
-spain_2021 <- results("data/validacao/SP1_2021.csv", "Espanhol", "20-21")
-spain_2122 <- results("data/validacao/SP1_2122.csv", "Espanhol", "21-22")
-spain_2223 <- results("data/validacao/SP1_2223.csv", "Espanhol", "22-23")
+# campeonato espanhol
+spain_2021 <- results("data/validacao/SP1_2021.csv", "Espanhol", "20-21", "SP")
+spain_2122 <- results("data/validacao/SP1_2122.csv", "Espanhol", "21-22", "SP")
+spain_2223 <- results("data/validacao/SP1_2223.csv", "Espanhol", "22-23", "SP")
+
+# campeonato frances
+france_2021 <- results("data/F1_2021.csv", "Frances", "20-21", "F")
+france_2122 <- results("data/F1_2122.csv", "Frances", "21-22", "F")
+france_2223 <- results("data/F1_2223.csv", "Frances", "22-23", "F")
+
+# campeonato alemao
+germany_2021 <- results("data/D1_2021.csv", "Alemao", "20-21", "D")
+germany_2122 <- results("data/D1_2122.csv", "Alemao", "21-22", "D")
+germany_2223 <- results("data/D1_2223.csv", "Alemao", "22-23", "D")
 
 validacao <- data.frame(
   Campeonato = character(),
@@ -193,6 +219,14 @@ validacao <- rbind(validacao, spain_2021)
 validacao <- rbind(validacao, spain_2122)
 validacao <- rbind(validacao, spain_2223)
 
+validacao <- rbind(validacao, france_2021)
+validacao <- rbind(validacao, france_2122)
+validacao <- rbind(validacao, france_2223)
+
+validacao <- rbind(validacao, germany_2021)
+validacao <- rbind(validacao, germany_2122)
+validacao <- rbind(validacao, germany_2223)
+
 colnames(validacao) <- c("Campeonato", "Temporada", "MLucro", "MAcuracia", "NApostas")
 
-write.csv(validacao, "final/validacao_resultados.csv", row.names = FALSE, quote = FALSE)
+write.csv(validacao, "final/validacao_resultados_modelo_dinamico.csv", row.names = FALSE, quote = FALSE)
