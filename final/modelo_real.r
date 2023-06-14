@@ -2,15 +2,6 @@ library(tidyverse)
 library(dplyr)
 library(httr)
 
-# hardcoded regression model following the results of the simulation for the best
-# average hit rate calculated: 56.2%
-
-# independent variables, model threshold and training dataset size
-# threshold: 2.5
-# variables: MFTAGt , MFTHGm
-# trainind dataset size: 240
-
-# recieves csv with 50+ games (being at least 40 completed) and
 # returns the list of games that have a chance to get more than 2.5 goals
 
 predict_games <- function(data_raw, model_parameters) {
@@ -62,7 +53,7 @@ predict_games <- function(data_raw, model_parameters) {
         if (is.na(goals_avg[j])) {
           # protection agains NaN in list
         } else if ((goals_avg[j] > bet_thresh) && (is.na(csv_data$FTHG[limit_input + j]))) {
-          safe_games <- c(safe_games, paste("Game", csv_data$jogo[(limit_input + j)], " | ", csv_data$HomeTeam[(limit_input + j)], "vs.", csv_data$AwayTeam[(limit_input + j)]))
+          safe_games <- c(safe_games, paste("Jogo", csv_data$jogo[(limit_input + j)], " | ", csv_data$HomeTeam[(limit_input + j)], "vs.", csv_data$AwayTeam[(limit_input + j)]))
         }
       }
 
@@ -84,8 +75,8 @@ get_model_stats <- function(games_file, model_parameters) {
   trainable_rows <- sum(!is.na(data_raw$FTHG))
 
   if (trainable_rows < training_size) {
-    print("Warning: there is not sufficient game data for predicting accurately.")
-    training_size <- trainable_rows
+    print("A quantidade de jogos não é suficiente para um treinamento confiável.")
+    quit(save = "no")
   }
 
   csv_data <- pre_process(games_file, training_size)
@@ -154,13 +145,13 @@ championships_choices <- c("E0", "D1", "F1", "SP1", "B1")
 championships <- c("Inglês", "Alemão", "Francês", "Espanhol", "Belga")
 
 if (is.na(file)) {
-  stop("Game data csv must be passed as an argument to the script")
+  stop("O nome do CSV dos jogos deve ser passado como argumento para o script.")
 }
 
 # seleção de temporada
 if (is.na(args[2])) {
-  cat("Select the championship you are predicting (as an argument).\n")
-  cat("-------- Select championship --------\n")
+  cat("Escolha o campeonato a ser previsto (rode o script de novo com o argumento adicional.)\n\n")
+  cat("-------- Escolha o campeonato--------\n")
 
   for (i in seq_along(championships)) {
     cat(paste0(championships[i], " (", championships_choices[i], ")", "\n"))
@@ -196,7 +187,7 @@ if (!is.na(prev_season)) {
     if (!is.null(prev_season_data)) {
       games <- rbind(prev_season_data, games)
     } else {
-      cat("Couldn't get previous season.")
+      cat("Não foi possível acessar a temporada anterior.")
       quit(save = "no")
     }
   } else {
@@ -207,11 +198,11 @@ if (!is.na(prev_season)) {
 res <- predict_games(games, model_parameters)
 
 if (is.null(res)) {
-  cat("The quantity of games is too small for training the model, do you wish to load the previous season from the same championship? (y/n)")
+  cat("A quantidade de jogos não é suficiente para um treinamento confiável, você deseja carregar a última temporada do campeonato? (y/n)\n")
   quit(save = "no")
 }
 
-cat("Based on the model coefficients and the betting threshold, the betting games would be: \n")
+cat("Baseado nos coeficientes do modelo e no limiar de apostas, os jogos 'apostáveis' são: \n")
 cat("\n")
 
 for (i in 1:length(res)) {
