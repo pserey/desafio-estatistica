@@ -199,11 +199,11 @@ res <- predict_games(games, model_parameters)
 
 if (is.null(res)) {
   cat("A quantidade de jogos não é suficiente para um treinamento confiável, você deseja carregar a última temporada do campeonato? (y/n)\n")
+  cat("IMPORTANTE: o uso de jogos da última temporada custará pontos de acurácia do modelo.\n")
   quit(save = "no")
 }
 
-cat("Baseado nos coeficientes do modelo e no limiar de apostas, os jogos 'apostáveis' são: \n")
-cat("\n")
+cat("Baseado nos coeficientes do modelo e no limiar de apostas, os jogos 'apostáveis' são: \n\n")
 
 for (i in 1:length(res)) {
   cat(paste0(res[i]), "\n")

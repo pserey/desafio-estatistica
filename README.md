@@ -36,6 +36,8 @@ Rscript final/modelo_real.R <arquivo.csv>
 Rscript final/modelo_real.R <arquivo.csv> <campeonato>
 ```
 
+> Caso a quantidade de jogos do CSV seja pequena (começo de temporada), será proposto a adição da última temporada na previsão de jogos atuais a custo de acurácia. Para adicionar a última temporada basta incluir `y` como argumento final para o script.
+
 - A partir desses dados, o modelo irá tentar prever os jogos sem resultados a partir dos dados calculados dos jogos anteriores e retornará a lista de jogos que o modelo considera como boas apostas.
 
 ### Simulação do modelo
