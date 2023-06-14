@@ -1,5 +1,6 @@
 library(tidyverse)
 library(dplyr)
+library(httr)
 
 # hardcoded regression model following the results of the simulation for the best
 # average hit rate calculated: 56.2%
@@ -12,21 +13,19 @@ library(dplyr)
 # recieves csv with 50+ games (being at least 40 completed) and
 # returns the list of games that have a chance to get more than 2.5 goals
 
-predict_games <- function(games_file, model_parameters) {
+predict_games <- function(data_raw, model_parameters) {
 
   variables <- model_parameters$variables
   training_size <- model_parameters$training_size
   bet_thresh <- model_parameters$bet_thresh
 
-  data_raw <- read.csv(games_file)
   trainable_rows <- sum(!is.na(data_raw$FTHG))
 
   if (trainable_rows < training_size) {
-    print("Warning: there is not sufficient game data for predicting accurately.")
-    training_size <- trainable_rows
+    return(NULL)
   }
 
-  csv_data <- pre_process(games_file, training_size)
+  csv_data <- pre_process(data_raw, training_size)
 
   attach(csv_data)
 
@@ -101,12 +100,24 @@ get_model_stats <- function(games_file, model_parameters) {
   return(summary(model))
 }
 
-pre_process <- function(file_name, training_set) {
+get_game_data <- function(url) {
+  response <- GET(url)
+
+  if (status_code(response) == 200) {
+    content <- content(response, "text")
+    csv_data <- read.csv(text = content)
+  } else {
+    return(NULL)
+  }
+
+  return(csv_data)
+}
+
+pre_process <- function(csv_data, training_set) {
 
   # csv_data <- read.csv("premier2020_21.csv", dec = ".")
 
   # ------------- pegando dado não pre-processado -----------------------
-  csv_data <- read.csv(file_name, dec = ".")
   csv_data <- mutate(csv_data, jogo = row_number())
   b365_index <- which(names(csv_data) == "B365.2.5")
   names(csv_data)[b365_index] <- "OddO2.5"
@@ -138,7 +149,8 @@ setwd("jogos/")
 args <- commandArgs(trailingOnly = TRUE)
 file <- args[1]
 championship <- args[2]
-championships_choices <- c("E", "D", "F", "SP", "B")
+prev_season <- args[3]
+championships_choices <- c("E0", "D1", "F1", "SP1", "B1")
 championships <- c("Inglês", "Alemão", "Francês", "Espanhol", "Belga")
 
 if (is.na(file)) {
@@ -160,21 +172,44 @@ if (is.na(args[2])) {
 }
 
 # pega campeonato
-if (championship == "E") {
+if (championship == "E0") {
   model_parameters <- list(variables = c("MFTAGt", "MFTHGm"), training_size = 240, bet_thresh = 2.7)
-} else if (championship == "F") {
+} else if (championship == "F1") {
     model_parameters <- list(variables = c("MFTHGt", "OddO2.5"), training_size = 340, bet_thresh = 2.5)
-} else if (championship == "B") {
+} else if (championship == "B1") {
     model_parameters <- list(variables = c("MFTAGm"), training_size = 240, bet_thresh = 2.7)
-} else if (championship == "D") {
+} else if (championship == "D1") {
     model_parameters <- list(variables = c("MFTHGt", "MFTAGm"), training_size = 240, bet_thresh = 2.7)
-} else if (championship == "SP") {
+} else if (championship == "SP1") {
     model_parameters <- list(variables = c("MFTAGt"), training_size = 140, bet_thresh = 2.7)
 } else {
     model_parameters <- list(variables = c("MFTHGt", "MFTHGm"), training_size = 240, bet_thresh = 2.5)
 }
 
-res <- predict_games(file, model_parameters)
+games <- read.csv(file, dec = ".")
+
+# check if wants to add previous season to data
+if (!is.na(prev_season)) {
+  if (prev_season == "y") {
+    url <- paste0("https://www.football-data.co.uk/mmz4281/2223/", championship, ".csv")
+    prev_season_data <- get_game_data(url)
+    if (!is.null(prev_season_data)) {
+      games <- rbind(prev_season_data, games)
+    } else {
+      cat("Couldn't get previous season.")
+      quit(save = "no")
+    }
+  } else {
+    quit(save = "no")
+  }
+}
+
+res <- predict_games(games, model_parameters)
+
+if (is.null(res)) {
+  cat("The quantity of games is too small for training the model, do you wish to load the previous season from the same championship? (y/n)")
+  quit(save = "no")
+}
 
 cat("Based on the model coefficients and the betting threshold, the betting games would be: \n")
 cat("\n")
