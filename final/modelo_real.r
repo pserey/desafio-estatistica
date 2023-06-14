@@ -12,22 +12,21 @@ library(dplyr)
 # recieves csv with 50+ games (being at least 40 completed) and
 # returns the list of games that have a chance to get more than 2.5 goals
 
-predict_games <- function(games_file) {
+predict_games <- function(games_file, model_parameters) {
+
+  variables <- model_parameters$variables
+  training_size <- model_parameters$training_size
+  bet_thresh <- model_parameters$bet_thresh
 
   data_raw <- read.csv(games_file)
   trainable_rows <- sum(!is.na(data_raw$FTHG))
-
-  training_size <- 240
 
   if (trainable_rows < training_size) {
     print("Warning: there is not sufficient game data for predicting accurately.")
     training_size <- trainable_rows
   }
 
-  csv_data <- pre_process(games_file, 240)
-
-  variables <- c("MFTHGt", "MFTHGm")
-  bet_thresh <- 2.5
+  csv_data <- pre_process(games_file, training_size)
 
   attach(csv_data)
 
@@ -112,10 +111,45 @@ setwd("jogos/")
 
 args <- commandArgs(trailingOnly = TRUE)
 file <- args[1]
+championship <- args[2]
+championships_choices <- c("E", "D", "F", "SP", "B")
+championships <- c("Inglês", "Alemão", "Francês", "Espanhol", "Belga")
 
 if (is.na(file)) {
   stop("Game data csv must be passed as an argument to the script")
 }
 
-res <- predict_games(file)
-res
+# seleção de temporada
+if (is.na(args[2])) {
+  cat("Select the championship you are predicting (as an argument).\n")
+  cat("-------- Select championship --------\n")
+
+  for (i in seq_along(championships)) {
+    cat(paste0(championships[i], " (", championships_choices[i], ")", "\n"))
+  }
+
+  quit(save = "no")
+}
+
+# pega campeonato
+if (championship == "E") {
+  model_parameters <- list(variables = c("MFTAGt", "MFTHGm"), training_size = 240, bet_thresh = 2.7)
+} else if (championship == "F"){
+    model_parameters <- list(variables = c("MFTHGt", "OddO2.5"), training_size = 340, bet_thresh = 2.5)
+} else if (championship == "B"){
+    model_parameters <- list(variables = c("MFTAGm"), training_size = 240, bet_thresh = 2.7)
+} else if (championship == "D"){
+    model_parameters <- list(variables = c("MFTHGt", "MFTAGm"), training_size = 240, bet_thresh = 2.7)
+} else if (championship == "SP"){
+    model_parameters <- list(variables = c("MFTAGt"), training_size = 140, bet_thresh = 2.7)
+} else {
+    model_parameters <- list(variables = c("MFTHGt", "MFTHGm"), training_size = 240, bet_thresh = 2.5)
+}
+
+res <- predict_games(file, model_parameters)
+
+cat("Based on the model coefficients and the betting threshold, the betting games would be: \n")
+
+for (i in 1:length(res)) {
+  cat(paste0(res[i]), "\n")
+}
