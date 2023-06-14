@@ -24,12 +24,17 @@ Após clonado, é possível executar o modelo de duas maneiras: para o uso real 
 
 ### Uso real do modelo (escolha de jogos para apostas)
 
-- Montar um CSV com jogos com resultados e jogos sem resultados (jogos a ser previstos). 
+- Montar um CSV com jogos com resultados e jogos sem resultados (jogos a ser previstos) e colocar esse CSV no diretório `/jogos`
+
 - Para rodar o modelo em cima do CSV, é possível usar a ferramenta de linha de comando de R com o nome do arquivo como argumento:
 ```
-Rscript final/modelo_real.R "arquivo.csv"
+Rscript final/modelo_real.R <arquivo.csv>
 ```
-> Dar atenção ao local do arquivo que deve ser relativo ao diretório onde o script está rodando.
+- Ao rodar o script dessa maneira, aparecerá um menu para que você escolha o campeonato que está prevendo para que o melhor modelo seja aplicado.
+
+```
+Rscript final/modelo_real.R <arquivo.csv> <campeonato>
+```
 
 - A partir desses dados, o modelo irá tentar prever os jogos sem resultados a partir dos dados calculados dos jogos anteriores e retornará a lista de jogos que o modelo considera como boas apostas.
 

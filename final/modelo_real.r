@@ -128,19 +128,21 @@ if (is.na(args[2])) {
     cat(paste0(championships[i], " (", championships_choices[i], ")", "\n"))
   }
 
+  cat("Outro (O)")
+
   quit(save = "no")
 }
 
 # pega campeonato
 if (championship == "E") {
   model_parameters <- list(variables = c("MFTAGt", "MFTHGm"), training_size = 240, bet_thresh = 2.7)
-} else if (championship == "F"){
+} else if (championship == "F") {
     model_parameters <- list(variables = c("MFTHGt", "OddO2.5"), training_size = 340, bet_thresh = 2.5)
-} else if (championship == "B"){
+} else if (championship == "B") {
     model_parameters <- list(variables = c("MFTAGm"), training_size = 240, bet_thresh = 2.7)
-} else if (championship == "D"){
+} else if (championship == "D") {
     model_parameters <- list(variables = c("MFTHGt", "MFTAGm"), training_size = 240, bet_thresh = 2.7)
-} else if (championship == "SP"){
+} else if (championship == "SP") {
     model_parameters <- list(variables = c("MFTAGt"), training_size = 140, bet_thresh = 2.7)
 } else {
     model_parameters <- list(variables = c("MFTHGt", "MFTHGm"), training_size = 240, bet_thresh = 2.5)
