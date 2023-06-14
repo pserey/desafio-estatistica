@@ -75,6 +75,32 @@ predict_games <- function(games_file, model_parameters) {
   return(safe_games)
 }
 
+get_model_stats <- function(games_file, model_parameters) {
+
+  variables <- model_parameters$variables
+  training_size <- model_parameters$training_size
+  bet_thresh <- model_parameters$bet_thresh
+
+  data_raw <- read.csv(games_file)
+  trainable_rows <- sum(!is.na(data_raw$FTHG))
+
+  if (trainable_rows < training_size) {
+    print("Warning: there is not sufficient game data for predicting accurately.")
+    training_size <- trainable_rows
+  }
+
+  csv_data <- pre_process(games_file, training_size)
+
+  attach(csv_data)
+
+  game_data <- csv_data[1:training_size, ]
+
+  formula <- as.formula(paste("total_goals ~", paste(variables, collapse = " + "), "- 1"))
+  model <- lm(formula, data = game_data)
+
+  return(summary(model))
+}
+
 pre_process <- function(file_name, training_set) {
 
   # csv_data <- read.csv("premier2020_21.csv", dec = ".")
@@ -151,6 +177,7 @@ if (championship == "E") {
 res <- predict_games(file, model_parameters)
 
 cat("Based on the model coefficients and the betting threshold, the betting games would be: \n")
+cat("\n")
 
 for (i in 1:length(res)) {
   cat(paste0(res[i]), "\n")
