@@ -1,7 +1,7 @@
 library(ggplot2)
 
 
-csv_data <- read.csv("data/simulation.csv")
+csv_data <- read.csv("data/simulation_D1.csv")
 
 # captions <- paste(paste("Betted games (mean):", round(mean(csv_data$NumBets), digits = 2)), "|", paste("Max profit:", max(csv_data$Profit)))
 
@@ -30,13 +30,8 @@ different_models_thresh <- ggplot(csv_data, aes(x = avgProfit, y = avgHitRate, c
     geom_point() +
     labs(x = "Average Profit", y = "Average Hit Rate") +
     ggtitle("Average Profit vs. Average Hit Rate (separated by betting threshold)") +
+    labs(subtitle = "Bundesliga") +
     scale_color_discrete(name = "Betting threshold")
-
-different_models_vars <- ggplot(csv_data, aes(x = avgProfit, y = avgHitRate, color = Variables)) +
-    geom_point() +
-    labs(x = "Average Profit", y = "Average Hit Rate") +
-    ggtitle("Average Profit vs. Average Hit Rate (separated by training variables)") +
-    scale_color_discrete(name = "Training variables")
 
 optimal_model <- which.max(csv_data$avgProfit)
 
@@ -46,27 +41,28 @@ different_models_data <- ggplot(csv_data, aes(x = avgProfit, y = avgHitRate, col
     geom_point(data = csv_data[optimal_model, ], aes(x = avgProfit, y = avgHitRate), color = "red") +
     labs(x = "Average Profit", y = "Average Hit Rate") +
     ggtitle("Average Profit vs. Average Hit Rate (separated by training dataset size)") +
+    labs(subtitle = "Bundesliga") +
     scale_color_discrete(name = "Training dataset size")
 
 data_size_accuracy <- ggplot(csv_data, aes(x = TrainingDataSize, y = avgHitRate, color = TrainingDataSize)) +
     geom_point() +
     labs(x = "Training dataset size", y = "Accuracy") +
     ggtitle("Accuracy for different training dataset sizes") +
+    labs(subtitle = "Bundesliga") +
     scale_color_discrete(name = "Traning Data Size")
 
 threshold_num_bets <- ggplot(csv_data, aes(x = as.factor(Threshold), y = avgBets, color = TrainingDataSize)) +
     geom_point() +
     labs(x = "Betting Threshold", y = "Average number of bets") +
     ggtitle("Average bets for different betting thresholds") +
+    labs(subtitle = "Bundesliga") +
     scale_color_discrete(name = "Traning Data Size")
 
 # ggsave("plots/nvar_vs_prof.pdf", nvar_x_prof)
 # ggsave("plots/nvar_vs_acc.pdf", nvar_x_acc)
 # ggsave("plots/prof_vs_acc.pdf", prof_x_acc)
-print(csv_data[1:1, ])
 
-ggsave("plots/models_thresh.png", different_models_thresh)
-# ggsave("plots/models_vars.png", different_models_vars)
-ggsave("plots/models_data.png", different_models_data)
-ggsave("plots/accuracy_datasize.png", data_size_accuracy)
-ggsave("plots/threshold_bets.png", threshold_num_bets)
+ggsave("plots/models_thresh_D1.png", different_models_thresh)
+ggsave("plots/models_data_D1.png", different_models_data)
+ggsave("plots/accuracy_datasize_D1.png", data_size_accuracy)
+ggsave("plots/threshold_bets_D1.png", threshold_num_bets)
